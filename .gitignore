@@ -1,0 +1,17 @@
+# --- .NET / Backend ---
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.vscode/
+
+# --- React / Frontend ---
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+
+# --- Ostatní ---
+.DS_Store
+.env
