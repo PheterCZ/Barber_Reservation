@@ -1,0 +1,34 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace backend.Models
+{
+    public class Barber
+    {
+        public Guid Id { get; set; }
+        [Required]
+        [MaxLength(50)]
+        public string FirstName { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(50)]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required]
+        [Phone]
+        [MaxLength(20)]
+        public string Phone { get; set; } = string.Empty;
+
+        [Required]
+        [EmailAddress]
+        [MaxLength(100)]
+        public string Email {get; set; } = string.Empty;
+
+        [MaxLength(100)]
+        public string? Specialization { get; set; }
+        
+        public DateTime StartWork { get; set; }
+    }
+}
