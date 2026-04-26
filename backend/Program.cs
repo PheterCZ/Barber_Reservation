@@ -1,10 +1,10 @@
 using backend.Data;
 using backend.Middlewares;
+using backend.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 DotNetEnv.Env.Load();
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +18,6 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
 
-Console.WriteLine("========================================");
-Console.WriteLine($"DEBUG: Moje heslo v C# je: [{dbPassword}]");
-Console.WriteLine("========================================");
 
 if(string.IsNullOrEmpty(dbPassword))
 {
@@ -29,10 +26,6 @@ if(string.IsNullOrEmpty(dbPassword))
 else{
     connectionString = connectionString.Replace("{DB_PASSWORD}", dbPassword);
 }
-
-// NAHORU pod Replace:
-Console.WriteLine($"--- KONTROLA: '{connectionString}' ---");
-
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(connectionString));
@@ -44,8 +37,19 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
 builder.Services.AddExceptionHandler<ExceptionMiddleware>();
 builder.Services.AddProblemDetails();
 
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-var app = builder.Build();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+var app = builder.Build();  
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -56,8 +60,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors();
+
 app.UseExceptionHandler();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -2,6 +2,7 @@ services:
   database:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sql_server_docker
+    hostname: sqlserver  
     ports:
       - "1433:1433"
     environment:

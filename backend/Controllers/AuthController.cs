@@ -1,6 +1,8 @@
 using backend.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using backend.Services;
+using backend.DTOs;
 
 namespace backend.Controllers
 {
@@ -8,33 +10,29 @@ namespace backend.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        public AuthController(UserManager<ApplicationUser> userManager)
+        private readonly IAuthService _authService;
+        private readonly ILogger<AuthController> _logger;
+        public AuthController(IAuthService authService, ILogger<AuthController> logger)
         {
-            _userManager = userManager;
+            _authService = authService;
+            _logger = logger;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] DTOs.RegisterDto registerDto)
+        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
-            var user = new ApplicationUser
-            {
-                UserName = registerDto.Email,
-                Email = registerDto.Email,
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
-                PhoneNumber = registerDto.Phone
-            };
+            _logger.LogInformation("Received registration request for email: {Email}", registerDto.Email);
 
-            var result = await _userManager.CreateAsync(user, registerDto.Password);
-
+            var result = await _authService.RegisterAsync(registerDto);
             if (result.Succeeded)
             {
                 return Ok(new { Message = "User registered successfully" });
             }
-
-            return BadRequest(result.Errors);
+            var errors = result.Errors.Select(e => e.Description).ToArray();
+            _logger.LogError("Registration failed for email: {Email}", registerDto.Email);
+            return BadRequest(new { Errors = errors });
         }
+        
     }
 }
 
