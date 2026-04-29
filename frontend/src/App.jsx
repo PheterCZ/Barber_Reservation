@@ -1,5 +1,6 @@
 import { BrowserRouter, Link, Routes, Route } from 'react-router-dom';
-import Register from './pages/Register'; // Předpokládám, že tvůj formulář je v tomto souboru
+import Register from './pages/Register';
+import Login from './pages/Login';
 
 export default function App() {
     return (
@@ -18,14 +19,22 @@ export default function App() {
                     >
                         Registrace uživatele
                     </Link>
-                    {/* Přidal jsem odkaz domů, aby ses mohl vracet */}
+                    <Link
+                        to="/login"
+                        style={{
+                            marginLeft: '1rem',
+                            color: '#fff',
+                            textDecoration: 'none',
+                            fontWeight: '500'
+                        }}
+                    >
+                        Přihlášení
+                    </Link>
                     <Link to="/" style={{ marginLeft: '1rem', color: '#ccc', textDecoration: 'none' }}>Domů</Link>
                 </nav>
 
                 <main style={{ padding: '2rem' }}>
-                    {/* TADY JE TA CHYBĚJÍCÍ ČÁST: */}
                     <Routes>
-                        {/* Cesta pro hlavní stránku */}
                         <Route path="/" element={
                             <div>
                                 <h1>Vítejte na stránce BarberOrder</h1>
@@ -33,8 +42,8 @@ export default function App() {
                             </div>
                         } />
 
-                        {/* Cesta pro registraci */}
                         <Route path="/registrace" element={<Register />} />
+                        <Route path="/login" element={<Login />} />
                     </Routes>
                 </main>
             </div>

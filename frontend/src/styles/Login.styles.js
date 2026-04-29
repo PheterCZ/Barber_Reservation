@@ -1,0 +1,53 @@
+const styles = {
+    page: {
+        minHeight: 'calc(100vh - 120px)',
+        display: 'grid',
+        placeItems: 'center',
+        padding: '2rem 1rem',
+        background: 'linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%)',
+    },
+    card: {
+        width: '100%',
+        maxWidth: '420px',
+        padding: '2rem',
+        borderRadius: '20px',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 20px 45px rgba(15, 23, 42, 0.12)',
+        border: '1px solid rgba(148, 163, 184, 0.18)',
+    },
+    heading: { margin: 0, fontSize: '1.75rem', color: '#0f172a' },
+    subheading: { margin: '0.5rem 0 0', color: '#475569', lineHeight: 1.5 },
+    form: { display: 'grid', gap: '1rem', marginTop: '1.75rem' },
+    field: { display: 'grid', gap: '0.45rem' },
+    label: { fontSize: '0.95rem', fontWeight: 600, color: '#1e293b' },
+    input: {
+        width: '100%',
+        padding: '0.85rem 1rem',
+        borderRadius: '12px',
+        border: '1px solid #cbd5e1',
+        outline: 'none',
+        fontSize: '1rem',
+        boxSizing: 'border-box',
+    },
+    error: {
+        margin: 0,
+        padding: '0.85rem 1rem',
+        borderRadius: '12px',
+        backgroundColor: '#fef2f2',
+        color: '#b91c1c',
+        border: '1px solid #fecaca',
+    },
+    button: {
+        marginTop: '0.5rem',
+        padding: '0.95rem 1rem',
+        border: 0,
+        borderRadius: '12px',
+        backgroundColor: '#0f172a',
+        color: '#ffffff',
+        fontSize: '1rem',
+        fontWeight: 600,
+        cursor: 'pointer',
+    },
+};
+
+export { styles };

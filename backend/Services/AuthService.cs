@@ -1,34 +1,71 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Data;
 using backend.DTOs;
+using backend.Services;
+using BarberOrder.backend.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace backend.Services
+public class AuthService : IAuthService
 {
-    public class AuthService : IAuthService
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IJwtService _jwtService;
+
+    public AuthService(
+        UserManager<ApplicationUser> userManager,
+        IJwtService jwtService)
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        _userManager = userManager;
+        _jwtService = jwtService;
+    }
 
-        public AuthService(UserManager<ApplicationUser> userManager)
+    public async Task<IdentityResult> RegisterAsync(RegisterDto registerDto)
+    {
+        var user = new ApplicationUser
         {
-            _userManager = userManager;
+            UserName = registerDto.Email,
+            Email = registerDto.Email,
+            FirstName = registerDto.FirstName,
+            LastName = registerDto.LastName,
+            PhoneNumber = registerDto.Phone
+        };
+
+        var result = await _userManager.CreateAsync(user, registerDto.Password);
+        if(result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(user, UserRoles.User);
+        }
+        return result;  
+    }
+
+    public async Task<AuthResult> LoginAsync(LoginDto dto)
+    {
+        var email = dto.Email.Trim().ToLower();
+
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user == null)
+            return new AuthResult { Success = false, Error = "Uživatel neexistuje" };
+
+        var isPasswordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
+        if (!isPasswordValid)
+        {
+            await _userManager.AccessFailedAsync(user);
+            return new AuthResult { Success = false, Error = "Špatné přihlašovací údaje" };
         }
 
-        public async Task<IdentityResult> RegisterAsync(DTOs.RegisterDto registerDto)
-        {
-            var user = new ApplicationUser
-            {
-                UserName = registerDto.Email,
-                Email = registerDto.Email,
-                FirstName = registerDto.FirstName,
-                LastName = registerDto.LastName,
-                PhoneNumber = registerDto.Phone
-            };
+        await _userManager.ResetAccessFailedCountAsync(user);
 
-            return await _userManager.CreateAsync(user, registerDto.Password);
+        var roles = await _userManager.GetRolesAsync(user);
+        if (!roles.Contains(UserRoles.Admin))
+        {
+            return new AuthResult { Success = false, Error = "Přístup povolen pouze pro administrátora" };
         }
+
+        var token = await _jwtService.GenerateTokenAsync(user, roles);
+
+        return new AuthResult
+        {
+            Success = true,
+            Token = token
+        };
     }
 }

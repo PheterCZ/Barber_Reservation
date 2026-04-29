@@ -30,8 +30,6 @@ namespace backend.Middlewares
                 Status = StatusCodes.Status500InternalServerError,
                 Title = "Chyba serveru."
             };
-
-            
             context.Response.StatusCode = problemDetails.Status.Value;
 
             await context.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
@@ -40,3 +38,4 @@ namespace backend.Middlewares
 
     }
 }
+

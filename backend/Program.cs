@@ -3,6 +3,10 @@ using backend.Middlewares;
 using backend.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
 
 DotNetEnv.Env.Load();
 
@@ -16,8 +20,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' nebyl nalezen v konfiguraci.");
 
 var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+var adminEmail = Environment.GetEnvironmentVariable("ADMIN_EMAIL");
 
-
+builder.Configuration["SeedSettings:AdminEmail"] = adminEmail ?? throw new InvalidOperationException("Kritická chyba: Chybí proměnná prostředí ADMIN_EMAIL!");
 
 if(string.IsNullOrEmpty(dbPassword))
 {
@@ -27,17 +32,45 @@ else{
     connectionString = connectionString.Replace("{DB_PASSWORD}", dbPassword);
 }
 
+
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
+builder.Services.AddIdentityCore<ApplicationUser>()
+    .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<ApplicationDBContext>()
     .AddDefaultTokenProviders();
+
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        RoleClaimType = ClaimTypes.Role,
+
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+        )
+    };
+});
 
 builder.Services.AddExceptionHandler<ExceptionMiddleware>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddCors(options =>
 {
@@ -48,6 +81,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+
 
 var app = builder.Build();  
 
@@ -71,10 +105,24 @@ app.MapControllers();
 
 if(app.Environment.IsDevelopment())
 {
-    using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
-    dbContext.Database.Migrate();
-}
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
+        {
+            var config = services.GetRequiredService<IConfiguration>();
+            
+            var dbContext = services.GetRequiredService<ApplicationDBContext>();
+            await dbContext.Database.MigrateAsync();
 
+            await SeedData.Initialize(services, config);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogCritical(ex, "Kritická chyba při startu aplikace (Migrace/Seeding).");
+        }
+    }
+}
 
 app.Run();
