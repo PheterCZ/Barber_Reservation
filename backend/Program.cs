@@ -1,5 +1,4 @@
 using backend.Data;
-using backend.Middlewares;
 using backend.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
+using System.Globalization;
+using Backend.Middlewares;
 
 DotNetEnv.Env.Load();
 
@@ -66,7 +67,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddExceptionHandler<ExceptionMiddleware>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
