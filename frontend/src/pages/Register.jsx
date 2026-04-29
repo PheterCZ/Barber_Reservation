@@ -11,6 +11,7 @@ const initialForm = {
   phone: '',
 };
 
+
 export default function Register() {
   const [formData, setFormData] = useState(initialForm);
   const [loading, setLoading] = useState(false);
