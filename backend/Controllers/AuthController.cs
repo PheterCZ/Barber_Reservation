@@ -20,7 +20,6 @@ namespace backend.Controllers
             _logger = logger;
         }
 
-        [Authorize(Roles = UserRoles.Admin)]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
@@ -54,4 +53,3 @@ namespace backend.Controllers
         }
     }
 }
-

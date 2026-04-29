@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { registerUser } from '../services/AuthService';
+import { styles } from '../styles/Login.styles';
+
 
 const initialForm = {
   email: '',
@@ -38,24 +40,32 @@ export default function Register() {
   };
 
   return (
-    <section style={{ maxWidth: '500px' }}>
-      <h2>Registrace uživatele</h2>
+    <section style={styles.page}>
+      <div style={styles.card}>
+        <header>
+          <h1 style={styles.heading}>Registrace</h1>
+          <p style={styles.subheading}>
+            Vytvoř nový účet do BarberOrder administrace.
+          </p>
+        </header>
 
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '0.75rem' }}>
-        <label>
-          Email
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <label style={styles.field}>
+            <span style={styles.label}>Email</span>
           <input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
             required
-            style={{ display: 'block', width: '100%', marginTop: '0.3rem' }}
+            disabled={loading}
+            autoComplete="email"
+            style={styles.input}
           />
-        </label>
+          </label>
 
-        <label>
-          Heslo (min. 6 znaků)
+          <label style={styles.field}>
+            <span style={styles.label}>Heslo (min. 6 znaků)</span>
           <input
             type="password"
             name="password"
@@ -63,12 +73,14 @@ export default function Register() {
             onChange={handleChange}
             required
             minLength={6}
-            style={{ display: 'block', width: '100%', marginTop: '0.3rem' }}
+            disabled={loading}
+            autoComplete="new-password"
+            style={styles.input}
           />
-        </label>
+          </label>
 
-        <label>
-          Jméno
+          <label style={styles.field}>
+            <span style={styles.label}>Jméno</span>
           <input
             type="text"
             name="firstName"
@@ -76,12 +88,14 @@ export default function Register() {
             onChange={handleChange}
             required
             maxLength={50}
-            style={{ display: 'block', width: '100%', marginTop: '0.3rem' }}
+            disabled={loading}
+            autoComplete="given-name"
+            style={styles.input}
           />
-        </label>
+          </label>
 
-        <label>
-          Příjmení
+          <label style={styles.field}>
+            <span style={styles.label}>Příjmení</span>
           <input
             type="text"
             name="lastName"
@@ -89,29 +103,46 @@ export default function Register() {
             onChange={handleChange}
             required
             maxLength={50}
-            style={{ display: 'block', width: '100%', marginTop: '0.3rem' }}
+            disabled={loading}
+            autoComplete="family-name"
+            style={styles.input}
           />
-        </label>
+          </label>
 
-        <label>
-          Telefon
+          <label style={styles.field}>
+            <span style={styles.label}>Telefon</span>
           <input
             type="text"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
             maxLength={20}
-            style={{ display: 'block', width: '100%', marginTop: '0.3rem' }}
+            disabled={loading}
+            autoComplete="tel"
+            style={styles.input}
           />
-        </label>
+          </label>
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Odesílám...' : 'Registrovat'}
-        </button>
-      </form>
+          {successMessage && (
+            <p role="status" style={{ ...styles.error, backgroundColor: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534' }}>
+              {successMessage}
+            </p>
+          )}
+          {errorMessage && (
+            <p role="alert" style={styles.error}>
+              {errorMessage}
+            </p>
+          )}
 
-      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-      {errorMessage && <p style={{ color: 'crimson' }}>{errorMessage}</p>}
+          <button
+            type="submit"
+            disabled={loading}
+            style={{ ...styles.button, opacity: loading ? 0.75 : 1 }}
+          >
+            {loading ? 'Odesílám...' : 'Registrovat'}
+          </button>
+        </form>
+      </div>
     </section>
   );
 }
