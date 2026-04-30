@@ -15,10 +15,12 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
         var problemDetails = new ProblemDetails
         {
             Status = exception switch
-            {
-                ApplicationException => StatusCodes.Status400BadRequest,
-                _ => StatusCodes.Status500InternalServerError
-            },
+        {
+            ArgumentException or ApplicationException => StatusCodes.Status400BadRequest,
+            KeyNotFoundException => StatusCodes.Status404NotFound,
+            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            _ => StatusCodes.Status500InternalServerError
+        },
             Title = "An error occurred",
             Type = exception.GetType().Name,
             Detail = exception.Message

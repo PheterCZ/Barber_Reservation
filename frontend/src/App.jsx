@@ -1,6 +1,7 @@
 import { BrowserRouter, Link, Routes, Route } from 'react-router-dom';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import AddBarber from './pages/AddBarber';
 
 export default function App() {
     return (
@@ -30,6 +31,17 @@ export default function App() {
                     >
                         Přihlášení
                     </Link>
+                    <Link
+                        to="/pridat-barbera"
+                        style={{
+                            marginLeft: '1rem',
+                            color: '#fff',
+                            textDecoration: 'none',
+                            fontWeight: '500'
+                        }}
+                    >
+                        Přidat barbera
+                    </Link>
                     <Link to="/" style={{ marginLeft: '1rem', color: '#ccc', textDecoration: 'none' }}>Domů</Link>
                 </nav>
 
@@ -44,6 +56,7 @@ export default function App() {
 
                         <Route path="/registrace" element={<Register />} />
                         <Route path="/login" element={<Login />} />
+                        <Route path="/pridat-barbera" element={<AddBarber />} />
                     </Routes>
                 </main>
             </div>

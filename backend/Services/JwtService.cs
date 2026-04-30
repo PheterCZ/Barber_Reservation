@@ -34,6 +34,7 @@ namespace backend.Services
 
             foreach(var role in roles)
             {
+                Console.WriteLine($"DEBUG: Přidávám roli: {role}");
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
 
@@ -49,6 +50,10 @@ namespace backend.Services
                 expires: DateTime.UtcNow.AddMinutes(15),
                 signingCredentials: credentials
             );
+
+            var testKey = _configuration["Jwt:Key"];
+            Console.WriteLine($"DEBUG JwtService Key: '{testKey}' (Délka: {testKey?.Length})");
+
 
             return Task.FromResult(_tokenHandler.WriteToken(token));
         }

@@ -6,16 +6,46 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
-using System.Globalization;
 using Backend.Middlewares;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.OpenApi.Models;
+
 
 DotNetEnv.Env.Load();
-
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Moje API", Version = "v1" });
+
+    // Tohle přidá tlačítko Authorize (zámek)
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Zadejte JWT token takto: Bearer {váš_token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' nebyl nalezen v konfiguraci.");
@@ -33,15 +63,17 @@ else{
     connectionString = connectionString.Replace("{DB_PASSWORD}", dbPassword);
 }
 
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddIdentityCore<ApplicationUser>()
-    .AddRoles<IdentityRole<Guid>>()
-    .AddEntityFrameworkStores<ApplicationDBContext>()
-    .AddDefaultTokenProviders();
-
+builder.Services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options => 
+{
+    options.User.RequireUniqueEmail = true;
+})
+.AddEntityFrameworkStores<ApplicationDBContext>()
+.AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -72,6 +104,7 @@ builder.Services.AddProblemDetails();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IBarberService, BarberService>();
 
 builder.Services.AddCors(options =>
 {
@@ -83,6 +116,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+var testKey = builder.Configuration["Jwt:Key"];
+Console.WriteLine($"DEBUG Program.cs Key: '{testKey}' (Délka: {testKey?.Length})");
 
 var app = builder.Build();  
 
@@ -98,7 +133,6 @@ app.UseHttpsRedirection();
 app.UseCors();
 
 app.UseExceptionHandler();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
