@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers
 {
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/[controller]")]
     [ApiController]
     public class BarberController : ControllerBase
@@ -18,20 +19,7 @@ namespace Backend.Controllers
         {
             _barberService = barberService;
         }
-        [Authorize] // Stačí být jen přihlášený
-        [HttpGet("check-my-roles")]
-        public IActionResult CheckRoles()
-        {
-            var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
-            var roles = User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
-            
-            return Ok(new {
-                UserName = User.Identity?.Name,
-                IsAdmin = User.IsInRole("Admin"), // Tohle je to, co selhává
-                AllRolesFoundInClaims = roles,
-                RawClaims = claims
-            });
-        }
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<string>>> GetBarbers()
         {
@@ -39,14 +27,6 @@ namespace Backend.Controllers
             return Ok(barbers);
         }
 
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = UserRoles.Admin)]
-        [HttpPost]
-        public async Task<ActionResult<BarberDto>> CreateBarber([FromBody] BarberDto barberDto)
-        {
-            var createdBarber = await _barberService.CreateBarber(barberDto);
-            return CreatedAtAction(nameof(GetBarbers), new { id = createdBarber.Id }, createdBarber);
-        }
-        [Authorize(Roles = UserRoles.Admin)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteBarber(int id)
         {

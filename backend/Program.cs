@@ -105,6 +105,8 @@ builder.Services.AddProblemDetails();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IBarberService, BarberService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+
 
 builder.Services.AddCors(options =>
 {

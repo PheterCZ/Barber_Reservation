@@ -17,5 +17,7 @@ namespace backend.Data
         [MaxLength(50)] 
         public string LastName { get; set; } = string.Empty;
 
+        public string FullName => $"{FirstName} {LastName}";
+
     }
 }
