@@ -31,7 +31,7 @@ export default function Register() {
 
     try {
       await registerUser(formData);
-      setSuccessMessage('Registrace proběhla úspěšně.');
+      setSuccessMessage('Registrace proběhla úspěšně, posíláme vám úvodní e-mail!');
       setFormData(initialForm);
     } catch (error) {
       setErrorMessage(error.message || 'Registrace se nepodařila.');

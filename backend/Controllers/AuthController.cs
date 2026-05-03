@@ -3,21 +3,24 @@ using backend.Services;
 using backend.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using BarberOrder.backend.Models;
+using Microsoft.AspNetCore.Identity;
+using backend.Interfaces;
 
 namespace backend.Controllers
 {
-    
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
         private readonly ILogger<AuthController> _logger;
+        private readonly IEmailService _emailService;
     
-        public AuthController(IAuthService authService, ILogger<AuthController> logger)
+        public AuthController(IAuthService authService, ILogger<AuthController> logger, IEmailService emailService)
         {
             _authService = authService;
             _logger = logger;
+            _emailService = emailService;
         }
 
         [HttpPost("register")]
@@ -31,6 +34,16 @@ namespace backend.Controllers
             {
                 var errors = result.Errors.Select(e => e.Description);
                 return BadRequest(new { errors });
+            }
+
+            try
+            {
+                await _emailService.SendConfirmationEmailAsync(dto.Email, "Welcome to BarberOrder!", "Thank you for registering with us!");
+                _logger.LogInformation("Welcome email sent to {Email}", dto.Email);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send welcome email to {Email}", dto.Email);
             }
 
             return Ok(new { message = "User registered successfully" });

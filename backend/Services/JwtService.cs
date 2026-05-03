@@ -51,10 +51,6 @@ namespace backend.Services
                 signingCredentials: credentials
             );
 
-            var testKey = _configuration["Jwt:Key"];
-            Console.WriteLine($"DEBUG JwtService Key: '{testKey}' (Délka: {testKey?.Length})");
-
-
             return Task.FromResult(_tokenHandler.WriteToken(token));
         }
 
