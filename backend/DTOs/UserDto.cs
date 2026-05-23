@@ -1,16 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace backend.DTOs
 {
-    public class UserDto
-    {
-        public Guid Id { get; set; }
-        public string FullName {get;set;}
-        public string Email { get; set; }
-        public IEnumerable<string> Roles {get;set;}
-    }
+    public record UserDto(
+        Guid Id, 
+        string FullName, 
+        string Email, 
+        IEnumerable<string> Roles
+    );
 }
-

@@ -3,6 +3,7 @@ using Backend.Middlewares;
 using backend.Data;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
+using FluentValidation;
 
 DotNetEnv.Env.Load();
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -18,6 +19,8 @@ builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddEmailConfiguration(builder.Configuration);
 builder.Services.AddApplicationServices(); 
 builder.Services.AddCustomCors(); 
+
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

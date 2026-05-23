@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-// Importujeme tvou univerzální request funkci z AuthService
 import { request } from '../services/AuthService';
 
 const AddBarber = () => {
@@ -17,11 +16,9 @@ const AddBarber = () => {
     const [barbers, setBarbers] = useState([]);
     const [fetchError, setFetchError] = useState('');
 
-    // Načtení seznamu barberů při startu
     useEffect(() => {
         const fetchBarbers = async () => {
             try {
-                // Používáme tvou funkci - token i metodu vyřeší za nás
                 const data = await request('/api/barber', 'GET');
                 setBarbers(Array.isArray(data) ? data : []);
             } catch (err) {
@@ -67,7 +64,6 @@ const AddBarber = () => {
         setStatus('');
 
         try {
-            // Data pro odeslání - ID vynecháváme, backend si ho vytvoří sám
             const payload = {
                 firstName: form.firstName.trim(),
                 lastName: form.lastName.trim(),
@@ -79,10 +75,8 @@ const AddBarber = () => {
 
             const createdBarber = await request('/api/barber', 'POST', payload);
 
-            // Přidáme nového barbera do seznamu pro okamžitou odezvu
             setBarbers((prev) => [...prev, createdBarber]);
             
-            // Reset formuláře
             setForm({
                 firstName: '',
                 lastName: '',
@@ -95,7 +89,6 @@ const AddBarber = () => {
             setStatus('Barber byl úspěšně přidán.');
             setErrors({});
         } catch (err) {
-            // Tady se zobrazí chyba z parseResponse (třeba 401 nebo validace z backendu)
             setStatus(err.message || 'Nelze přidat barbera.');
         } finally {
             setLoading(false);
