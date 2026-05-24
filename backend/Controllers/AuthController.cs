@@ -38,7 +38,7 @@ namespace backend.Controllers
 
             try
             {
-                await _emailService.SendConfirmationEmailAsync(dto.Email, "Welcome to BarberOrder!", "Thank you for registering with us!");
+                await _emailService.SendConfirmationEmailAsync(dto.Email, "Vítejte u nás!", "Děkujeme vám za registraci!");
                 _logger.LogInformation("Welcome email sent to {Email}", dto.Email);
             }
             catch (Exception ex)

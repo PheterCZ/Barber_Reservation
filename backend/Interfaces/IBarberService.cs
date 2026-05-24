@@ -5,8 +5,8 @@ namespace backend.Services
 {
     public interface IBarberService
     {
-        Task<IEnumerable<string>> GetBarbersAsync();
+        Task<IEnumerable<BarberDto>> GetBarbersAsync();
         Task DeleteBarber(int barberId);
-
+        Task AddBarberAsync(BarberDto barberDto);
     }
 }

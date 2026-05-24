@@ -21,17 +21,24 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<string>>> GetBarbers()
+        public async Task<ActionResult<IEnumerable<BarberDto>>> GetBarbers()
         {
             var barbers = await _barberService.GetBarbersAsync();
             return Ok(barbers);
-        }
+        }   
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteBarber(int id)
         {
             await _barberService.DeleteBarber(id);
             return NoContent();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> AddBarber([FromBody] BarberDto barberDto)
+        {
+            await _barberService.AddBarberAsync(barberDto);
+            return Created();
         }
     }
 }

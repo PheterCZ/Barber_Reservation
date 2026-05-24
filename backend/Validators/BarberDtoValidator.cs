@@ -33,6 +33,7 @@ namespace backend.Validators
                 .WithMessage("Zadejte platný e-mailový formát.");
                 
             RuleFor(barber => barber.Specialization)
+                .NotEmpty().WithMessage("Specializace je povinná.")
                 .MaximumLength(200)
                 .WithMessage("Specializace může mít maximálně 200 znaků.");
                 

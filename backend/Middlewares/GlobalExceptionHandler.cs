@@ -13,6 +13,7 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
         CancellationToken cancellationToken)
     {
         logger.LogError(exception, "Unhandled exception occurred");
+        Console.WriteLine($"======= CHYBA NA BACKENDU: {exception.Message} \n {exception.StackTrace}");
 
         var statusCode = exception switch
         {

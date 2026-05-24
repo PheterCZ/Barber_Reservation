@@ -140,9 +140,7 @@ namespace backend.Extensions
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IBarberService, BarberService>();
             services.AddScoped<IUsersService, UsersService>();
-            services.AddScoped<IEmailService, EmailService>();
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            
+            services.AddScoped<IEmailService, EmailService>();            
         }
 
     }

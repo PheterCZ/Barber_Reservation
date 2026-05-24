@@ -43,13 +43,13 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(email);
 
         if (user == null)
-            return new AuthResult { Success = false, Error = "Uživatel neexistuje" };
+            return new AuthResult(false, null, "Uživatel nenalezen");
 
         var isPasswordValid = await _userManager.CheckPasswordAsync(user, dto.Password);
         if (!isPasswordValid)
         {
             await _userManager.AccessFailedAsync(user);
-            return new AuthResult { Success = false, Error = "Špatné přihlašovací údaje" };
+            return new AuthResult(false, null, "Neplatné heslo");
         }
 
         await _userManager.ResetAccessFailedCountAsync(user);
@@ -57,15 +57,11 @@ public class AuthService : IAuthService
         var roles = await _userManager.GetRolesAsync(user);
         if (!roles.Contains(UserRoles.Admin))
         {
-            return new AuthResult { Success = false, Error = "Přístup povolen pouze pro administrátora" };
+            return new AuthResult(false, null, "Přístup povolen pouze pro administrátora");
         }
 
         var token = await _jwtService.GenerateTokenAsync(user, roles);
 
-        return new AuthResult
-        {
-            Success = true,
-            Token = token
-        };
+        return new AuthResult(true, token, "Úspěšné přihlášení");
     }
 }
