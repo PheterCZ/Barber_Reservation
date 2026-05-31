@@ -9,7 +9,6 @@ namespace backend.Models
 {
     public class Appointment
     {
-
         public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]

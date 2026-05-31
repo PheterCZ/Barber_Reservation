@@ -1,95 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { request } from '../services/AuthService';
+import React, { useState, useRef } from 'react';
+import { useBarbers } from '../hooks/useBarber';
+import { createBarberApi } from '../services/AddBarberService';
+
+
+const openDatePicker = (input) => {
+    if (!input) return;
+    if (typeof input.showPicker === 'function') {
+        try { input.showPicker(); } catch {}
+    } else {
+        input.focus();
+    }
+};
 
 const AddBarber = () => {
-    const [form, setForm] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        specialization: '',
-        startWork: ''
+    const { barbers, setBarbers, error: fetchError } = useBarbers();
+    
+    const [form, setForm] = useState({ 
+        firstName: '', lastName: '', email: '', phone: '', specialization: '', startWork: '' 
     });
     const [errors, setErrors] = useState({});
     const [status, setStatus] = useState('');
     const [loading, setLoading] = useState(false);
-    const [barbers, setBarbers] = useState([]);
-    const [fetchError, setFetchError] = useState('');
+    const startWorkRef = useRef(null);
 
-    useEffect(() => {
-        const fetchBarbers = async () => {
-            try {
-                const data = await request('/api/barber', 'GET');
-                setBarbers(Array.isArray(data) ? data : []);
-            } catch (err) {
-                setFetchError(err.message || 'Nepodařilo se načíst seznam barberů.');
-            }
-        };
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm(prev => ({ ...prev, [name]: value }));
 
-        fetchBarbers();
-    }, []);
+        if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
+        setStatus('');
+    };
 
     const validate = () => {
         const newErrors = {};
         if (!form.firstName.trim()) newErrors.firstName = 'Jméno je povinné.';
         if (!form.lastName.trim()) newErrors.lastName = 'Příjmení je povinné.';
-        if (!form.email.trim()) {
-            newErrors.email = 'E-mail je povinný.';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-            newErrors.email = 'Zadejte platný e-mail.';
-        }
-        if (!form.phone.trim()) {
-            newErrors.phone = 'Telefon je povinný.';
-        }
+        if (!form.email.trim()) newErrors.email = 'E-mail je povinný.';
         if (!form.startWork) newErrors.startWork = 'Datum nástupu je povinné.';
-
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
-        if (errors[name]) {
-            setErrors((prev) => ({ ...prev, [name]: undefined }));
-        }
-        setStatus('');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) return;
-
         setLoading(true);
-        setStatus('');
-
         try {
-            const payload = {
-                firstName: form.firstName.trim(),
-                lastName: form.lastName.trim(),
-                email: form.email.trim(),
-                phone: form.phone.trim(),
-                specialization: form.specialization.trim() || null,
-                startWork: new Date(form.startWork).toISOString()
-            };
-
-            const createdBarber = await request('/api/barber', 'POST', payload);
-
-            setBarbers((prev) => [...prev, createdBarber]);
-            
-            setForm({
-                firstName: '',
-                lastName: '',
-                email: '',
-                phone: '',
-                specialization: '',
-                startWork: ''
-            });
-            
-            setStatus('Barber byl úspěšně přidán.');
-            setErrors({});
+            const newBarber = await createBarberApi(form);
+            setBarbers(prev => [...prev, newBarber]);
+            setStatus('Barber úspěšně přidán.');
+            setForm({ firstName: '', lastName: '', email: '', phone: '', specialization: '', startWork: '' });
         } catch (err) {
-            setStatus(err.message || 'Nelze přidat barbera.');
+            setStatus(err.message || 'Chyba při ukládání.');
         } finally {
             setLoading(false);
         }
@@ -138,8 +100,19 @@ const AddBarber = () => {
                 </div>
 
                 <div style={{ marginBottom: 20 }}>
-                    <label style={{ display: 'block', marginBottom: 4 }}>Nástup do práce</label>
-                    <input type="date" name="startWork" value={form.startWork} onChange={handleChange} style={{ width: '100%', padding: 8, boxSizing: 'border-box' }} />
+                    <label style={{ display: 'block', marginBottom: 4, cursor: 'pointer' }} onClick={() => openDatePicker(startWorkRef.current)}>
+                        Nástup do práce
+                    </label>
+                    <input
+                        ref={startWorkRef}
+                        id="startWork"
+                        type="date"
+                        name="startWork"
+                        value={form.startWork}
+                        onChange={handleChange}
+                        onClick={(e) => openDatePicker(e.currentTarget)}
+                        style={{ width: '100%', padding: 8, boxSizing: 'border-box', cursor: 'pointer' }}
+                    />
                     {errors.startWork && <small style={{ color: 'red' }}>{errors.startWork}</small>}
                 </div>
 

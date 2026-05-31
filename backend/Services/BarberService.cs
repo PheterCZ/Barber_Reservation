@@ -1,6 +1,7 @@
 
 using backend.DTOs;
 using Microsoft.EntityFrameworkCore;
+
 namespace backend.Services
 {
     public class BarberService : IBarberService
@@ -28,7 +29,7 @@ namespace backend.Services
 
             return barbers; 
         }
-        public async Task DeleteBarber(int barberId)
+        public async Task DeleteBarber(Guid barberId)
         {
             var barber = await _context.Barbers.FindAsync(barberId);
             if (barber == null)
@@ -49,9 +50,7 @@ namespace backend.Services
                 Phone = barberDto.Phone,
                 Specialization = barberDto.Specialization,
                 StartWork = barberDto.StartWork
-                
             };
-
             _context.Barbers.Add(barber);
             await _context.SaveChangesAsync();
         }

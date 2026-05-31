@@ -18,16 +18,9 @@ public class ApplicationDBContext : IdentityDbContext<ApplicationUser, IdentityR
         base.OnModelCreating(builder);
 
         builder.Entity<Appointment>()
-            .HasOne(a => a.Customer)
-            .WithMany()
-            .HasForeignKey(a => a.CustomerId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .HasIndex(a => new { a.BarberId, a.StartTime })
+            .IsUnique();
 
-        builder.Entity<Appointment>()
-            .HasOne(a => a.Barber)
-            .WithMany()
-            .HasForeignKey(a => a.BarberId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
     
 }

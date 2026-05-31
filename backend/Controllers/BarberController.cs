@@ -1,11 +1,8 @@
-using System.Security.Claims;
 using backend.DTOs;
 using backend.Services;
-using BarberOrder.backend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 
 namespace Backend.Controllers
 {
@@ -20,6 +17,7 @@ namespace Backend.Controllers
             _barberService = barberService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BarberDto>>> GetBarbers()
         {
@@ -28,7 +26,7 @@ namespace Backend.Controllers
         }   
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteBarber(int id)
+        public async Task<ActionResult> DeleteBarber(Guid id)
         {
             await _barberService.DeleteBarber(id);
             return NoContent();

@@ -15,6 +15,28 @@ export function decodeJwtPayload(token) {
 }
 
 
+export function getLoggedInUser() {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+
+  const payload = decodeJwtPayload(token);
+  if (!payload) return null;
+
+  const id =
+    payload.sub ??
+    payload.nameid ??
+    payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+
+  if (!id) return null;
+
+  const firstName = payload.firstName ?? payload.given_name ?? '';
+  const lastName = payload.lastName ?? payload.family_name ?? '';
+  const email = payload.email ?? payload.unique_name ?? '';
+  const name = [firstName, lastName].filter(Boolean).join(' ').trim() || email;
+
+  return { id, firstName, lastName, name, email };
+}
+
 export function hasAdminRole() {
   const token = localStorage.getItem('token');
   if (!token) return false;

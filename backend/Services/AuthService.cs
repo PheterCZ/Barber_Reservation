@@ -55,10 +55,6 @@ public class AuthService : IAuthService
         await _userManager.ResetAccessFailedCountAsync(user);
 
         var roles = await _userManager.GetRolesAsync(user);
-        if (!roles.Contains(UserRoles.Admin))
-        {
-            return new AuthResult(false, null, "Přístup povolen pouze pro administrátora");
-        }
 
         var token = await _jwtService.GenerateTokenAsync(user, roles);
 

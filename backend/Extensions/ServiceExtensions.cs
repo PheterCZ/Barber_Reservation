@@ -141,6 +141,7 @@ namespace backend.Extensions
             services.AddScoped<IBarberService, BarberService>();
             services.AddScoped<IUsersService, UsersService>();
             services.AddScoped<IEmailService, EmailService>();            
+            services.AddScoped<IAppointmentService, AppointmentService>();
         }
 
     }

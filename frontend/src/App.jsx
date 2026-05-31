@@ -2,8 +2,9 @@ import { BrowserRouter, Link, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Register from './pages/Register';
 import Login from './pages/Login';
-import AddBarber from './pages/AddBarber';
+import AddBarber from './pages/BarberPage';
 import Users from './pages/Users';
+import Booking from './pages/BookingPage'; 
 import { hasAdminRole } from './services/AuthService';
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
                     
                     <Link to="/" style={linkStyle}>Domů</Link>
                     <Link to="/registrace" style={linkStyle}>Registrace</Link>
+                    <Link to="/rezervace" style={linkStyle}>Rezervace</Link> 
                     
                     {!isAdmin ? (
                         <Link to="/login" style={linkStyle}>Přihlášení</Link>
@@ -58,6 +60,7 @@ export default function App() {
                         
                         <Route path="/pridat-barbera" element={<AddBarber />} />
                         <Route path="/uzivatele" element={<Users />} />
+                        <Route path="/rezervace" element={<Booking />} /> 
                     </Routes>
                 </main>
             </div>
@@ -95,4 +98,3 @@ const logoutButtonStyle = {
     padding: '0.3rem 0.8rem',
     borderRadius: '4px'
 };
-
