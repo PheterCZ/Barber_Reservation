@@ -1,4 +1,3 @@
-
 using backend.DTOs;
 using backend.Interfaces;
 using backend.Models;
@@ -43,14 +42,19 @@ namespace backend.Services
                 throw new ArgumentException("Čas začátku musí být v budoucnosti.");
             }
 
-            
-
             var userInDb = await _context.Users.FirstOrDefaultAsync(u => u.Id == customerId);
             if (userInDb == null)
             {
                 throw new KeyNotFoundException("Přihlášený uživatel nebyl nalezen.");
             }
+            var exists = await _context.Appointments.AnyAsync(a => 
+                a.BarberId == appointmentDto.BarberId && 
+                a.StartTime == appointmentDto.StartTime);
 
+            if (exists)
+            {
+                throw new InvalidOperationException("Termín je již obsazen.");
+            }
             var appointment = new Appointment
             {
                 Id = Guid.NewGuid(),

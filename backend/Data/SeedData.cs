@@ -1,7 +1,5 @@
-using backend.Models; 
 using BarberOrder.backend.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace backend.Data
 {

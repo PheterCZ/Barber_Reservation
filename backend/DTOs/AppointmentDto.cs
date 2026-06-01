@@ -1,4 +1,3 @@
-
 namespace backend.DTOs
 {
     public record AppointmentDto(

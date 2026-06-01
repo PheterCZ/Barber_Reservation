@@ -1,5 +1,3 @@
-
-
 namespace backend.DTOs
 {
     public record UserDto(

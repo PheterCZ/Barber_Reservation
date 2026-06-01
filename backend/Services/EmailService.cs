@@ -1,10 +1,8 @@
-
 using backend.Interfaces;
 using BarberOrder.backend.Configuration;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MailKit.Net.Smtp;
-using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Services
 {

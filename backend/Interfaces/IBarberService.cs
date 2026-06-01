@@ -1,5 +1,4 @@
 using backend.DTOs;
-using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Services
 {
