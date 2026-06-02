@@ -36,6 +36,16 @@ namespace backend.Validators
                 .NotEmpty().WithMessage("Specializace je povinná.")
                 .MaximumLength(200)
                 .WithMessage("Specializace může mít maximálně 200 znaků.");
+
+            RuleFor(barber => barber.Services)
+                .NotEmpty()
+                .WithMessage("Zadejte alespoň jednu službu.");
+
+            RuleForEach(barber => barber.Services)
+                .NotEmpty()
+                .WithMessage("Název služby nesmí být prázdný.")
+                .MaximumLength(100)
+                .WithMessage("Název služby může mít maximálně 100 znaků.");
                 
             RuleFor(barber => barber.StartWork)
                 .NotEmpty()

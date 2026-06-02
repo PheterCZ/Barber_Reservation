@@ -22,6 +22,8 @@ namespace backend.Services
                     b.Phone,
                     b.Email,
                     b.Specialization,
+                    (b.Specialization ?? string.Empty)
+                        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
                     b.StartWork
                 ))
                 .ToListAsync();
@@ -47,7 +49,10 @@ namespace backend.Services
                 LastName = barberDto.LastName,
                 Email = barberDto.Email,
                 Phone = barberDto.Phone,
-                Specialization = barberDto.Specialization,
+                Specialization = string.Join(", ", barberDto.Services
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => s.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)),
                 StartWork = barberDto.StartWork
             };
             _context.Barbers.Add(barber);

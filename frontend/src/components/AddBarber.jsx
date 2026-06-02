@@ -16,7 +16,7 @@ const AddBarber = () => {
     const { barbers, setBarbers, error: fetchError } = useBarbers();
     
     const [form, setForm] = useState({ 
-        firstName: '', lastName: '', email: '', phone: '', specialization: '', startWork: '' 
+        firstName: '', lastName: '', email: '', phone: '', servicesInput: '', startWork: '' 
     });
     const [errors, setErrors] = useState({});
     const [status, setStatus] = useState('');
@@ -36,6 +36,7 @@ const AddBarber = () => {
         if (!form.firstName.trim()) newErrors.firstName = 'Jméno je povinné.';
         if (!form.lastName.trim()) newErrors.lastName = 'Příjmení je povinné.';
         if (!form.email.trim()) newErrors.email = 'E-mail je povinný.';
+        if (!form.servicesInput.trim()) newErrors.servicesInput = 'Zadejte alespoň jednu službu.';
         if (!form.startWork) newErrors.startWork = 'Datum nástupu je povinné.';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -49,7 +50,7 @@ const AddBarber = () => {
             const newBarber = await createBarberApi(form);
             setBarbers(prev => [...prev, newBarber]);
             setStatus('Barber úspěšně přidán.');
-            setForm({ firstName: '', lastName: '', email: '', phone: '', specialization: '', startWork: '' });
+            setForm({ firstName: '', lastName: '', email: '', phone: '', servicesInput: '', startWork: '' });
         } catch (err) {
             setStatus(err.message || 'Chyba při ukládání.');
         } finally {
@@ -95,8 +96,16 @@ const AddBarber = () => {
                 </div>
 
                 <div style={{ marginBottom: 12 }}>
-                    <label style={{ display: 'block', marginBottom: 4 }}>Specializace</label>
-                    <input type="text" name="specialization" value={form.specialization} onChange={handleChange} style={{ width: '100%', padding: 8, boxSizing: 'border-box' }} />
+                    <label style={{ display: 'block', marginBottom: 4 }}>Služby (oddělené čárkou)</label>
+                    <input
+                        type="text"
+                        name="servicesInput"
+                        value={form.servicesInput}
+                        onChange={handleChange}
+                        placeholder="Klasický střih, Vlasy + vousy"
+                        style={{ width: '100%', padding: 8, boxSizing: 'border-box' }}
+                    />
+                    {errors.servicesInput && <small style={{ color: 'red' }}>{errors.servicesInput}</small>}
                 </div>
 
                 <div style={{ marginBottom: 20 }}>
@@ -136,7 +145,11 @@ const AddBarber = () => {
                         {barbers.map((b) => (
                             <li key={b.id || b.email} style={{ padding: '12px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between' }}>
                                 <strong>{b.firstName} {b.lastName}</strong>
-                                <span style={{ color: '#666' }}>{b.specialization || 'Bez specializace'}</span>
+                                <span style={{ color: '#666' }}>
+                                    {Array.isArray(b.services) && b.services.length > 0
+                                        ? b.services.join(', ')
+                                        : (b.specialization || 'Bez specializace')}
+                                </span>
                             </li>
                         ))}
                     </ul>

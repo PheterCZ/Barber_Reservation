@@ -13,6 +13,8 @@ namespace backend.DTOs
         
         string? Specialization, 
         
+        IEnumerable<string> Services, 
+        
         DateTime StartWork
     )
     {

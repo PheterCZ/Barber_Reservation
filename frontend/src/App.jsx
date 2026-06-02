@@ -9,15 +9,18 @@ import { hasAdminRole } from './services/AuthService';
 
 export default function App() {
     const [isAdmin, setIsAdmin] = useState(hasAdminRole());
+    const [isLoggedIn, setIsLoggedIn] = useState(Boolean(localStorage.getItem('token')));
 
     useEffect(() => {
         setIsAdmin(hasAdminRole());
+        setIsLoggedIn(Boolean(localStorage.getItem('token')));
     }, []);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setIsAdmin(false);
+        setIsLoggedIn(false);
         window.location.href = '/login';
     };
 
@@ -30,7 +33,7 @@ export default function App() {
                     </span>
                     
                     <Link to="/" style={linkStyle}>Domů</Link>
-                    <Link to="/registrace" style={linkStyle}>Registrace</Link>
+                    {!isLoggedIn && <Link to="/registrace" style={linkStyle}>Registrace</Link>}
                     <Link to="/rezervace" style={linkStyle}>Rezervace</Link> 
                     
                     {!isAdmin ? (
@@ -88,6 +91,7 @@ const adminLinkStyle = {
     textDecoration: 'none',
     fontWeight: 'bold'
 };
+
 
 const logoutButtonStyle = {
     marginLeft: 'auto',

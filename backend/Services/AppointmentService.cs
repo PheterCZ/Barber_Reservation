@@ -88,7 +88,7 @@ namespace backend.Services
             var bookedSet = new HashSet<int>(bookedHours);
             var availableSlots = new List<DateTime>();
 
-            for (int hour = 8; hour < 18; hour++)
+            for (int hour = 8; hour < 20; hour++)
             {
                 var slotTime = startOfDay.AddHours(hour);
 
