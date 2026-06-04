@@ -22,67 +22,50 @@ export default function Users() {
   }, []);
 
   return (
-    <section style={{ padding: '1rem' }}>
-      <h1>Seznam uživatelů</h1>
+    <section className="page-container">
+      <header className="page-header">
+        <h1>Seznam uživatelů</h1>
+        <p>Přehled registrovaných účtů a jejich rolí v systému.</p>
+      </header>
 
-      {loading && <p>Načítám uživatele...</p>}
+      {loading && <p className="loading-text">Načítám uživatele…</p>}
 
       {!loading && errorMessage && (
-        <p role="alert" style={{ color: '#b91c1c' }}>
+        <p role="alert" className="alert alert--error">
           {errorMessage}
         </p>
       )}
 
-      {!loading && !errorMessage && (
-        <>
-          {users.length === 0 ? (
-            <p>V systému zatím nejsou žádní uživatelé.</p>
-          ) : (
-            <table
-              style={{
-                width: '100%',
-                borderCollapse: 'collapse',
-                marginTop: '1rem',
-                backgroundColor: '#fff',
-                border: '1px solid #e2e8f0'
-              }}
-            >
-              <thead>
-                <tr style={{ backgroundColor: '#f8fafc' }}>
-                  <th style={thStyle}>Jméno</th>
-                  <th style={thStyle}>Email</th>
-                  <th style={thStyle}>Role</th>
+      {!loading && !errorMessage && users.length === 0 && (
+        <p className="empty-state">V systému zatím nejsou žádní uživatelé.</p>
+      )}
+
+      {!loading && !errorMessage && users.length > 0 && (
+        <div className="table-wrapper">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Jméno</th>
+                <th>Email</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.id}>
+                  <td>{user.fullName || '—'}</td>
+                  <td>{user.email || '—'}</td>
+                  <td>
+                    {user.roles && user.roles.length > 0
+                      ? user.roles.join(', ')
+                      : 'Bez role'}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td style={tdStyle}>{user.fullName || '-'}</td>
-                    <td style={tdStyle}>{user.email || '-'}</td>
-                    <td style={tdStyle}>
-                      {user.roles && user.roles.length > 0 
-                        ? user.roles.join(', ') 
-                        : 'Bez role'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );
 }
-
-const thStyle = { 
-    textAlign: 'left', 
-    padding: '0.75rem', 
-    borderBottom: '2px solid #e2e8f0',
-    fontWeight: 'bold' 
-};
-
-const tdStyle = { 
-    padding: '0.75rem', 
-    borderBottom: '1px solid #f1f5f9' 
-};

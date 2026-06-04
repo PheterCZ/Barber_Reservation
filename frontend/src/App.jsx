@@ -1,10 +1,10 @@
-import { BrowserRouter, Link, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Link, NavLink, Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import AddBarber from './pages/BarberPage';
 import Users from './pages/Users';
-import Booking from './pages/BookingPage'; 
+import Booking from './pages/BookingPage';
 import { hasAdminRole } from './services/AuthService';
 
 export default function App() {
@@ -24,81 +24,89 @@ export default function App() {
         window.location.href = '/login';
     };
 
+    const navLinkClass = ({ isActive }) =>
+        isActive ? 'navbar__link navbar__link--active' : 'navbar__link';
+
+    const adminNavLinkClass = ({ isActive }) =>
+        isActive ? 'navbar__link navbar__link--admin navbar__link--active' : 'navbar__link navbar__link--admin';
+
     return (
         <BrowserRouter>
-            <div>
-                <nav style={navStyle}>
-                    <span style={{ fontSize: '1.2rem', fontWeight: 'bold', marginRight: '1rem' }}>
+            <div className="app">
+                <nav className="navbar">
+                    <Link to="/" className="navbar__brand">
                         BarberOrder
-                    </span>
-                    
-                    <Link to="/" style={linkStyle}>Domů</Link>
-                    {!isLoggedIn && <Link to="/registrace" style={linkStyle}>Registrace</Link>}
-                    <Link to="/rezervace" style={linkStyle}>Rezervace</Link> 
-                    
-                    {!isAdmin ? (
-                        <Link to="/login" style={linkStyle}>Přihlášení</Link>
-                    ) : (
-                        <>
-                            <Link to="/pridat-barbera" style={adminLinkStyle}>Přidat barbera</Link>
-                            <Link to="/uzivatele" style={adminLinkStyle}>Uživatelé</Link>
-                            <button onClick={handleLogout} style={logoutButtonStyle}>
-                                Odhlásit
-                            </button>
-                        </>
-                    )}
+                    </Link>
+
+                    <div className="navbar__links">
+                        <NavLink to="/" end className={navLinkClass}>
+                            Domů
+                        </NavLink>
+                        {!isLoggedIn && (
+                            <NavLink to="/registrace" className={navLinkClass}>
+                                Registrace
+                            </NavLink>
+                        )}
+                        <NavLink to="/rezervace" className={navLinkClass}>
+                            Rezervace
+                        </NavLink>
+
+                        {!isAdmin ? (
+                            <NavLink to="/login" className={navLinkClass}>
+                                Přihlášení
+                            </NavLink>
+                        ) : (
+                            <>
+                                <NavLink to="/pridat-barbera" className={adminNavLinkClass}>
+                                    Přidat barbera
+                                </NavLink>
+                                <NavLink to="/uzivatele" className={adminNavLinkClass}>
+                                    Uživatelé
+                                </NavLink>
+                                <button type="button" onClick={handleLogout} className="btn-logout">
+                                    Odhlásit
+                                </button>
+                            </>
+                        )}
+                    </div>
                 </nav>
 
-                <main style={{ padding: '2rem' }}>
+                <main className="main">
                     <Routes>
-                        <Route path="/" element={
-                            <div>
-                                <h1>Vítejte na stránce BarberOrder</h1>
-                                <p>Systém pro správu vašeho barber shopu.</p>
-                            </div>
-                        } />
+                        <Route
+                            path="/"
+                            element={
+                                <div className="page-container">
+                                    <section className="hero">
+                                        <span className="hero__badge">Barber shop</span>
+                                        <h1>Vítejte v BarberOrder</h1>
+                                        <p>
+                                            Rezervujte si termín u vašeho barbera online. Pro administrátory
+                                            správa barberů, služeb a uživatelů na jednom místě.
+                                        </p>
+                                        <div className="hero__actions">
+                                            <Link to="/rezervace" className="btn btn--accent">
+                                                Rezervovat termín
+                                            </Link>
+                                            {!isLoggedIn && (
+                                                <Link to="/login" className="btn btn--outline">
+                                                    Přihlásit se
+                                                </Link>
+                                            )}
+                                        </div>
+                                    </section>
+                                </div>
+                            }
+                        />
 
                         <Route path="/registrace" element={<Register />} />
                         <Route path="/login" element={<Login />} />
-                        
                         <Route path="/pridat-barbera" element={<AddBarber />} />
                         <Route path="/uzivatele" element={<Users />} />
-                        <Route path="/rezervace" element={<Booking />} /> 
+                        <Route path="/rezervace" element={<Booking />} />
                     </Routes>
                 </main>
             </div>
         </BrowserRouter>
     );
 }
-
-const navStyle = { 
-    padding: '1rem', 
-    backgroundColor: '#333', 
-    color: '#fff', 
-    display: 'flex', 
-    alignItems: 'center' 
-};
-
-const linkStyle = {
-    marginLeft: '1rem',
-    color: '#fff',
-    textDecoration: 'none'
-};
-
-const adminLinkStyle = {
-    marginLeft: '1rem',
-    color: '#ffcc00', 
-    textDecoration: 'none',
-    fontWeight: 'bold'
-};
-
-
-const logoutButtonStyle = {
-    marginLeft: 'auto',
-    backgroundColor: 'transparent',
-    color: '#ff4444',
-    border: '1px solid #ff4444',
-    cursor: 'pointer',
-    padding: '0.3rem 0.8rem',
-    borderRadius: '4px'
-};

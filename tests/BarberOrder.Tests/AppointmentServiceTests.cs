@@ -59,4 +59,5 @@ public class AppointmentServiceTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => 
             service.AddBookedSlotAsync(appointmentDto, customerId));
     }
+    
 }   

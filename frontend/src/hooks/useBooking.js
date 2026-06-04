@@ -3,7 +3,7 @@ import { fetchBarbers, fetchAppointments, createAppointment } from '../services/
 
 export const useBooking = () => {
   const [barbers, setBarbers] = useState([]);
-  const [bookedSlots, setBookedSlots] = useState({});
+  const [appointments, setAppointments] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -12,19 +12,15 @@ export const useBooking = () => {
 
   const loadAppointments = async (barberId) => {
     try {
-      const appointments = await fetchAppointments();
-      const slots = {};
-      appointments.filter(a => a.barberId === barberId).forEach(a => {
-        slots[`${a.startTime.split('T')[0]}_${a.startTime.substring(11, 16)}`] = true;
-      });
-      setBookedSlots(slots);
+      const allAppointments = await fetchAppointments();
+      setAppointments(allAppointments.filter(a => a.barberId === barberId));
     } catch (err) { console.error(err); }
   };
 
   const bookSlot = async (dto) => {
     await createAppointment(dto);
-    setBookedSlots(prev => ({ ...prev, [`${dto.startTime.split('T')[0]}_${dto.startTime.substring(11, 16)}`]: true }));
+    setAppointments((prev) => [...prev, dto]);
   };
 
-  return { barbers, bookedSlots, error, loadAppointments, bookSlot };
+  return { barbers, appointments, error, loadAppointments, bookSlot };
 };

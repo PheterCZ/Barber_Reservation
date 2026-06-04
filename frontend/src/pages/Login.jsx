@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/AuthService';
-import { styles } from '../styles/Login.styles';
+
 const initialFormState = {
   email: '',
   password: ''
@@ -25,9 +25,8 @@ export default function Login() {
 
     try {
       await loginUser(formData);
-      
       setFormData(initialFormState);
-      navigate('/dashboard');
+      navigate('/');
     } catch (error) {
       setErrorMessage(error.message);
     } finally {
@@ -36,61 +35,61 @@ export default function Login() {
   };
 
   return (
-    <section style={styles.page}>
-      <div style={styles.card}>
+    <div className="auth-page">
+      <div className="card card--narrow">
         <header>
-          <h1 style={styles.heading}>Přihlášení</h1>
-          <p style={styles.subheading}>
-            Přihlas se do BarberOrder a pokračuj do administrace.
+          <h1 className="card__title">Přihlášení</h1>
+          <p className="card__subtitle">
+            Přihlaste se do BarberOrder a pokračujte k rezervaci nebo administraci.
           </p>
         </header>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <label style={styles.field}>
-            <span style={styles.label}>Email</span>
+        <form onSubmit={handleSubmit} className="form">
+          <label className="form-field">
+            <span className="form-label">Email</span>
             <input
               type="email"
               name="email"
-              placeholder="napr. jan@barberorder.cz"
+              className="form-input"
+              placeholder="např. jan@barberorder.cz"
               value={formData.email}
               onChange={handleChange}
               required
               disabled={loading}
               autoComplete="email"
-              style={styles.input}
             />
           </label>
 
-          <label style={styles.field}>
-            <span style={styles.label}>Heslo</span>
+          <label className="form-field">
+            <span className="form-label">Heslo</span>
             <input
               type="password"
               name="password"
-              placeholder="Zadej heslo"
+              className="form-input"
+              placeholder="Zadejte heslo"
               value={formData.password}
               onChange={handleChange}
               required
               disabled={loading}
               autoComplete="current-password"
-              style={styles.input}
             />
           </label>
 
           {errorMessage && (
-            <p role="alert" style={styles.error}>
+            <p role="alert" className="alert alert--error">
               {errorMessage}
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{ ...styles.button, opacity: loading ? 0.75 : 1 }}
-          >
-            {loading ? 'Přihlašuji...' : 'Přihlásit se'}
+          <button type="submit" disabled={loading} className="btn btn--primary btn--block">
+            {loading ? 'Přihlašuji…' : 'Přihlásit se'}
           </button>
+
+          <p className="card__subtitle auth-footer">
+            Nemáte účet? <Link to="/registrace">Registrovat se</Link>
+          </p>
         </form>
       </div>
-    </section>
+    </div>
   );
 }

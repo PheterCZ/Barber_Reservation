@@ -1,20 +1,18 @@
 import { request } from './AuthService';
+import { buildBarberServiceLabels } from '../constants/barberServices';
 
 export const fetchBarbersApi = () => request('/api/barber', 'GET');
 
 export const createBarberApi = (data) => {
-    const services = data.servicesInput
-        .split(',')
-        .map((service) => service.trim())
-        .filter(Boolean);
+    const normalizedServices = buildBarberServiceLabels(data.selectedServiceIds ?? []);
 
     const payload = {
         firstName: data.firstName.trim(),
         lastName: data.lastName.trim(),
         email: data.email.trim(),
         phone: data.phone.trim(),
-        specialization: services.join(', ') || null,
-        services,
+        specialization: normalizedServices.join(', ') || null,
+        services: normalizedServices,
         startWork: new Date(data.startWork).toISOString()
     };
 

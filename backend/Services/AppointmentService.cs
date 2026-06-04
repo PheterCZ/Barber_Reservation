@@ -2,15 +2,25 @@ using backend.DTOs;
 using backend.Interfaces;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
+using System.Text.RegularExpressions;
 
 namespace backend.Services
 {
     public class AppointmentService : IAppointmentService
     {
         private readonly ApplicationDBContext _context;
-        public AppointmentService(ApplicationDBContext context)
+        private readonly IEmailService _emailService;
+        private readonly ILogger<AppointmentService> _logger;
+
+        public AppointmentService(
+            ApplicationDBContext context,
+            IEmailService emailService,
+            ILogger<AppointmentService> logger)
         {
             _context = context;
+            _emailService = emailService;
+            _logger = logger;
         }
 
         public async Task<IEnumerable<AppointmentDto>> GetBookedSlotsAsync()
@@ -33,9 +43,9 @@ namespace backend.Services
 
         public async Task AddBookedSlotAsync(AppointmentDto appointmentDto, Guid customerId)
         {
-
             var startUtc = appointmentDto.StartTime.ToUniversalTime();
-            var endUtc = appointmentDto.EndTime.ToUniversalTime();
+            var durationMinutes = ParseDurationMinutes(appointmentDto.Service);
+            var endUtc = startUtc.AddMinutes(durationMinutes);
 
             if(startUtc < DateTime.UtcNow)
             {
@@ -47,31 +57,69 @@ namespace backend.Services
             {
                 throw new KeyNotFoundException("Přihlášený uživatel nebyl nalezen.");
             }
-            var exists = await _context.Appointments.AnyAsync(a => 
-                a.BarberId == appointmentDto.BarberId && 
-                a.StartTime == appointmentDto.StartTime);
-
-            if (exists)
+            await using var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+            try
             {
-                throw new InvalidOperationException("Termín je již obsazen.");
-            }
-            var appointment = new Appointment
-            {
-                Id = Guid.NewGuid(),
-                CustomerId = customerId,
-                BarberId = appointmentDto.BarberId,
-                Service = appointmentDto.Service,
-                StartTime = startUtc,
-                EndTime = endUtc,
-            };
+                var hasOverlap = await _context.Appointments.AnyAsync(a =>
+                    a.BarberId == appointmentDto.BarberId &&
+                    a.StartTime < endUtc &&
+                    a.EndTime > startUtc);
 
-            _context.Appointments.Add(appointment);
-            try{
+                if (hasOverlap)
+                {
+                    throw new InvalidOperationException("Termín je již obsazen nebo se překrývá s jinou rezervací.");
+                }
+
+                var appointment = new Appointment
+                {
+                    Id = Guid.NewGuid(),
+                    CustomerId = customerId,
+                    BarberId = appointmentDto.BarberId,
+                    Service = appointmentDto.Service,
+                    StartTime = startUtc,
+                    EndTime = endUtc,
+                };
+
+                _context.Appointments.Add(appointment);
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
             }
             catch(DbUpdateException ex)
             {
+                await transaction.RollbackAsync();
                 throw new InvalidOperationException("Chyba při ukládání rezervace. Zkontrolujte, zda barber není již zaneprázdněn v tomto čase.", ex);
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+
+            var barber = await _context.Barbers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(b => b.Id == appointmentDto.BarberId);
+
+            var barberName = barber != null
+                ? $"{barber.FirstName} {barber.LastName}"
+                : appointmentDto.BarberName;
+
+            var localStart = appointmentDto.StartTime.ToLocalTime();
+            var emailSubject = "Potvrzení rezervace";
+            var emailBody = $"Dobrý den {userInDb.FirstName},\n\n" +
+                            $"Vaše rezervace byla úspěšně vytvořena.\n" +
+                            $"Barber: {barberName}\n" +
+                            $"Služba: {appointmentDto.Service}\n" +
+                            $"Datum: {localStart:dd.MM.yyyy}\n" +
+                            $"Čas: {localStart:HH:mm}\n\n" +
+                            "Děkujeme za rezervaci.";
+
+            try
+            {
+                await _emailService.SendConfirmationEmailAsync(userInDb.Email!, emailSubject, emailBody);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Rezervace byla vytvořena, ale potvrzovací e-mail se nepodařilo odeslat na {Email}.", userInDb.Email);
             }
         }
 
@@ -99,6 +147,17 @@ namespace backend.Services
             }
 
             return availableSlots;
+        }
+
+        private static int ParseDurationMinutes(string serviceLabel)
+        {
+            var match = Regex.Match(serviceLabel ?? string.Empty, @"\((\d+)\s*min\)", RegexOptions.IgnoreCase);
+            if (match.Success && int.TryParse(match.Groups[1].Value, out var parsedMinutes))
+            {
+                return Math.Clamp(parsedMinutes, 15, 240);
+            }
+
+            return 60;
         }
     }
 }

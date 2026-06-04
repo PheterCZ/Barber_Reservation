@@ -1,7 +1,6 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { registerUser } from '../services/AuthService';
-import { styles } from '../styles/Login.styles';
-
 
 const initialForm = {
   email: '',
@@ -10,7 +9,6 @@ const initialForm = {
   lastName: '',
   phone: '',
 };
-
 
 export default function Register() {
   const [formData, setFormData] = useState(initialForm);
@@ -41,109 +39,109 @@ export default function Register() {
   };
 
   return (
-    <section style={styles.page}>
-      <div style={styles.card}>
+    <div className="auth-page">
+      <div className="card card--narrow">
         <header>
-          <h1 style={styles.heading}>Registrace</h1>
-          <p style={styles.subheading}>
-            Vytvoř nový účet do BarberOrder administrace.
+          <h1 className="card__title">Registrace</h1>
+          <p className="card__subtitle">
+            Vytvořte si účet a rezervujte si termín u vašeho barbera.
           </p>
         </header>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <label style={styles.field}>
-            <span style={styles.label}>Email</span>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={loading}
-            autoComplete="email"
-            style={styles.input}
-          />
+        <form onSubmit={handleSubmit} className="form">
+          <label className="form-field">
+            <span className="form-label">Email</span>
+            <input
+              type="email"
+              name="email"
+              className="form-input"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled={loading}
+              autoComplete="email"
+            />
           </label>
 
-          <label style={styles.field}>
-            <span style={styles.label}>Heslo (min. 6 znaků)</span>
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            minLength={6}
-            disabled={loading}
-            autoComplete="new-password"
-            style={styles.input}
-          />
+          <label className="form-field">
+            <span className="form-label">Heslo (min. 6 znaků)</span>
+            <input
+              type="password"
+              name="password"
+              className="form-input"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              minLength={6}
+              disabled={loading}
+              autoComplete="new-password"
+            />
           </label>
 
-          <label style={styles.field}>
-            <span style={styles.label}>Jméno</span>
-          <input
-            type="text"
-            name="firstName"
-            value={formData.firstName}
-            onChange={handleChange}
-            required
-            maxLength={50}
-            disabled={loading}
-            autoComplete="given-name"
-            style={styles.input}
-          />
+          <label className="form-field">
+            <span className="form-label">Jméno</span>
+            <input
+              type="text"
+              name="firstName"
+              className="form-input"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+              maxLength={50}
+              disabled={loading}
+              autoComplete="given-name"
+            />
           </label>
 
-          <label style={styles.field}>
-            <span style={styles.label}>Příjmení</span>
-          <input
-            type="text"
-            name="lastName"
-            value={formData.lastName}
-            onChange={handleChange}
-            required
-            maxLength={50}
-            disabled={loading}
-            autoComplete="family-name"
-            style={styles.input}
-          />
+          <label className="form-field">
+            <span className="form-label">Příjmení</span>
+            <input
+              type="text"
+              name="lastName"
+              className="form-input"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              maxLength={50}
+              disabled={loading}
+              autoComplete="family-name"
+            />
           </label>
 
-          <label style={styles.field}>
-            <span style={styles.label}>Telefon</span>
-          <input
-            type="text"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            maxLength={20}
-            disabled={loading}
-            autoComplete="tel"
-            style={styles.input}
-          />
+          <label className="form-field">
+            <span className="form-label">Telefon</span>
+            <input
+              type="tel"
+              name="phone"
+              className="form-input"
+              value={formData.phone}
+              onChange={handleChange}
+              maxLength={20}
+              disabled={loading}
+              autoComplete="tel"
+            />
           </label>
 
           {successMessage && (
-            <p role="status" style={{ ...styles.error, backgroundColor: '#f0fdf4', borderColor: '#bbf7d0', color: '#166534' }}>
+            <p role="status" className="alert alert--success">
               {successMessage}
             </p>
           )}
           {errorMessage && (
-            <p role="alert" style={styles.error}>
+            <p role="alert" className="alert alert--error">
               {errorMessage}
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{ ...styles.button, opacity: loading ? 0.75 : 1 }}
-          >
-            {loading ? 'Odesílám...' : 'Registrovat'}
+          <button type="submit" disabled={loading} className="btn btn--primary btn--block">
+            {loading ? 'Odesílám…' : 'Registrovat'}
           </button>
+
+          <p className="card__subtitle auth-footer">
+            Už máte účet? <Link to="/login">Přihlásit se</Link>
+          </p>
         </form>
       </div>
-    </section>
+    </div>
   );
 }
