@@ -1,27 +1,25 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useBarbers } from '../hooks/useBarber';
 import { createBarberApi } from '../services/AddBarberService';
 import { BARBER_SERVICES } from '../constants/barberServices';
 
-const openDatePicker = (input) => {
-    if (!input) return;
-    if (typeof input.showPicker === 'function') {
-        try { input.showPicker(); } catch {}
-    } else {
-        input.focus();
-    }
+const getTodayIsoDate = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 };
 
 const AddBarber = () => {
     const { barbers, setBarbers, error: fetchError } = useBarbers();
 
     const [form, setForm] = useState({
-        firstName: '', lastName: '', email: '', phone: '', selectedServiceIds: [], startWork: ''
+        firstName: '', lastName: '', email: '', phone: '', selectedServiceIds: [], startWork: getTodayIsoDate()
     });
     const [errors, setErrors] = useState({});
     const [status, setStatus] = useState('');
     const [loading, setLoading] = useState(false);
-    const startWorkRef = useRef(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -63,7 +61,7 @@ const AddBarber = () => {
             const newBarber = await createBarberApi(form);
             setBarbers(prev => [...prev, newBarber]);
             setStatus('Barber úspěšně přidán.');
-            setForm({ firstName: '', lastName: '', email: '', phone: '', selectedServiceIds: [], startWork: '' });
+            setForm({ firstName: '', lastName: '', email: '', phone: '', selectedServiceIds: [], startWork: getTodayIsoDate() });
         } catch (err) {
             setStatus(err.message || 'Chyba při ukládání.');
         } finally {
@@ -166,23 +164,16 @@ const AddBarber = () => {
                         </fieldset>
 
                         <label className="form-field form-field--full">
-                            <span
-                                className="form-label"
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => openDatePicker(startWorkRef.current)}
-                            >
-                                Nástup do práce
-                            </span>
+                            <span className="form-label">Nástup do práce</span>
                             <input
-                                ref={startWorkRef}
                                 id="startWork"
                                 type="date"
                                 name="startWork"
                                 className={`form-input${errors.startWork ? ' form-input--error' : ''}`}
                                 value={form.startWork}
-                                onChange={handleChange}
-                                onClick={(e) => openDatePicker(e.currentTarget)}
-                                style={{ cursor: 'pointer' }}
+                                readOnly
+                                tabIndex={-1}
+                                style={{ cursor: 'default', pointerEvents: 'none' }}
                             />
                             {errors.startWork && <span className="form-hint">{errors.startWork}</span>}
                         </label>

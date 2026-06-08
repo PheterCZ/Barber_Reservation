@@ -6,5 +6,4 @@ namespace backend.DTOs
         string? Token,
         string? Error
     );
-
 }
