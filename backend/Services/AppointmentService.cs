@@ -39,8 +39,6 @@ namespace backend.Services
 
             var (user, barberName) = await BarberInDbService.BarberDbService(_context, customerId, appointmentDto);
 
-            var appointment = await new CreateAppointmentInDbAsync(_context).CreateAsync(customerId, appointmentDto, start, end);
-
             var emailBody = appointmentDto.GenerateEmailBody(user, barberName);
             try 
             {
@@ -74,7 +72,6 @@ namespace backend.Services
                     availableSlots.Add(slotTime);
                 }
             }
-            
             return availableSlots;
         }
 

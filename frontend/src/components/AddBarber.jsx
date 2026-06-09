@@ -69,6 +69,29 @@ const AddBarber = () => {
         }
     };
 
+    const deleteBarber = async (barberId) => {
+        if (!window.confirm("Opravdu chcete tohoto barbera smazat?")) return;
+        const token = localStorage.getItem('token');
+
+        try {
+            const response = await fetch(`http://localhost:5254/api/barber/${barberId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                setBarbers(prev => prev.filter(b => b.id !== barberId));
+                setStatus('Barber smazán.');
+            } else {
+                const errorData = await response.text();
+                setStatus(`Chyba: ${response.status} - ${errorData}`);
+            }
+        } catch (err) {
+            console.error("Fetch error:", err);
+            setStatus('Nepodařilo se připojit k serveru.');
+        }
+    };
+
     const statusIsSuccess = status.includes('úspěšně');
 
     return (
@@ -206,10 +229,14 @@ const AddBarber = () => {
                                     {b.firstName} {b.lastName}
                                 </span>
                                 <span className="barber-list__services">
-                                    {Array.isArray(b.services) && b.services.length > 0
-                                        ? b.services.join(', ')
-                                        : (b.specialization || 'Bez specializace')}
-                                </span>
+                                </span>                                
+                                <button 
+                                    onClick={() => deleteBarber(b.id)} 
+                                    className="btn btn--danger" 
+                                    style={{ marginLeft: '1rem' }}
+                                >
+                                    Smazat
+                                </button>
                             </li>
                         ))}
                     </ul>

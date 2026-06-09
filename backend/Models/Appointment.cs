@@ -9,7 +9,7 @@ namespace backend.Models
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
 
-        public string Service { get; set; } = string.Empty;
+        public string Service { get; set; }
         public Guid CustomerId { get; set; }
         public ApplicationUser? Customer { get; set; }
 
