@@ -12,8 +12,26 @@ export default function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(Boolean(localStorage.getItem('token')));
 
     useEffect(() => {
-        setIsAdmin(hasAdminRole());
-        setIsLoggedIn(Boolean(localStorage.getItem('token')));
+        const updateAuth = () => {
+            setIsAdmin(hasAdminRole());
+            setIsLoggedIn(Boolean(localStorage.getItem('token')));
+        };
+
+        updateAuth();
+
+        const onAuthChange = () => updateAuth();
+        const onStorage = (e) => {
+            if (!e || !e.key) return;
+            if (e.key === 'token' || e.key === 'user') updateAuth();
+        };
+
+        window.addEventListener('authChange', onAuthChange);
+        window.addEventListener('storage', onStorage);
+
+        return () => {
+            window.removeEventListener('authChange', onAuthChange);
+            window.removeEventListener('storage', onStorage);
+        };
     }, []);
 
     const handleLogout = () => {
@@ -21,6 +39,7 @@ export default function App() {
         localStorage.removeItem('user');
         setIsAdmin(false);
         setIsLoggedIn(false);
+        try { window.dispatchEvent(new CustomEvent('authChange', { detail: { type: 'logout' } })); } catch {}
         window.location.href = '/login';
     };
 

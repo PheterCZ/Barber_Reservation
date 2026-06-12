@@ -1,4 +1,3 @@
-
 using backend.DTOs;
 
 namespace backend.Interfaces
@@ -7,6 +6,5 @@ namespace backend.Interfaces
     {
         Task<IEnumerable<AppointmentDto>> GetBookedSlotsAsync();
         Task AddBookedSlotAsync(AppointmentDto appointmentDto, Guid customerId);
-        
     }
 }

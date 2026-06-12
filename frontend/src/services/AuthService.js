@@ -75,6 +75,10 @@ async function parseResponse(response) {
     if (response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      try {
+        // notify app about auth change before redirecting
+        window.dispatchEvent(new CustomEvent('authChange', { detail: { type: 'logout' } }));
+      } catch {}
       window.location.href = '/login';
     }
     throw new Error(errorMsg);
@@ -91,8 +95,22 @@ export async function loginUser(payload) {
   if (data.token) {
     localStorage.setItem('token', data.token);
     if (data.user) localStorage.setItem('user', JSON.stringify(data.user));
+    try {
+      window.dispatchEvent(new CustomEvent('authChange', { detail: { type: 'login' } }));
+    } catch {
+      /* ignore */
+    }
   }
   return data;
+}
+
+// helper to notify other parts of the app when auth state changes
+export function notifyAuthChange() {
+  try {
+    window.dispatchEvent(new CustomEvent('authChange', { detail: { type: 'change' } }));
+  } catch {
+    /* ignore */
+  }
 }
 
 export async function getUsers() {

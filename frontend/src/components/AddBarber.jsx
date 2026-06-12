@@ -12,7 +12,7 @@ const getTodayIsoDate = () => {
 };
 
 const AddBarber = () => {
-    const { barbers, setBarbers, error: fetchError } = useBarbers();
+    const { barbers, setBarbers, error: fetchError, refreshBarbers } = useBarbers();
 
     const [form, setForm] = useState({
         firstName: '', lastName: '', email: '', phone: '', selectedServiceIds: [], startWork: getTodayIsoDate()
@@ -59,7 +59,12 @@ const AddBarber = () => {
         setLoading(true);
         try {
             const newBarber = await createBarberApi(form);
-            setBarbers(prev => [...prev, newBarber]);
+            try {
+                await refreshBarbers();
+            } catch {
+                // fallback to local append if refresh fails
+                setBarbers(prev => [...prev, newBarber]);
+            }
             setStatus('Barber úspěšně přidán.');
             setForm({ firstName: '', lastName: '', email: '', phone: '', selectedServiceIds: [], startWork: getTodayIsoDate() });
         } catch (err) {
