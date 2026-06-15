@@ -33,6 +33,6 @@ Systém umožňuje správu rezervací, uživatelů a dostupných časů s důraz
 
 ```bash
 git clone https://github.com/PheterCZ/Barber_Reservation
-cd Barber_Reservation
-cd backend
-docker-compose up --build
+cd Barber_Reservation/backend
+cp .env.example .env
+docker compose up --build
