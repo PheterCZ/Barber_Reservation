@@ -7,30 +7,45 @@ namespace backend.Services
 {
     public class UsersService : IUsersService
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ApplicationDBContext _context;
 
-        public UsersService(UserManager<ApplicationUser> userManager)
+        public UsersService(ApplicationDBContext context)
         {
-            _userManager = userManager;
+            _context = context;
         }
+        
+
         public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
-            var users = await _userManager.Users.ToListAsync();
-            var dtos = new List<UserDto>();
+            var users = await _context.Users
+                .AsNoTracking()
+                .ToListAsync();
 
-            foreach (var user in users)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
+            var userRoles = await (
+                from ur in _context.UserRoles
+                join r in _context.Roles
+                    on ur.RoleId equals r.Id
+                select new
+                {
+                    ur.UserId,
+                    RoleName = r.Name
+                }
+            ).ToListAsync();
 
-                var dto = new UserDto(
-                    user.Id,
-                    user.FullName,
-                    user.Email ?? string.Empty,
-                    roles
+            var rolesLookup = userRoles
+                .Where(x => !string.IsNullOrWhiteSpace(x.RoleName))
+                .GroupBy(x => x.UserId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(x => x.RoleName!).ToList()
                 );
-                dtos.Add(dto);
-            }
-            return dtos;
+
+            return users.Select(u => new UserDto(
+                u.Id,
+                u.FullName,
+                u.Email ?? string.Empty,
+                rolesLookup.GetValueOrDefault(u.Id) ?? new List<string>()
+            ));
         }
     }
 }
