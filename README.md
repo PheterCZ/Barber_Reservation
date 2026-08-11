@@ -1,46 +1,38 @@
-Barber Booking System
+# Barber Booking API
 
-A full-stack reservation system for barber services built with ASP.NET Core 8 Web API and React.
+A REST API for a barber reservation system built with .NET 8.
+The system provides management of reservations, users, and available time slots, with a focus on data consistency and security.
 
-The project focuses on backend development, database design, authentication and authorization, validation, and real-world booking logic. The system allows users to manage appointments, barbers, services, and available time slots while preventing conflicting bookings.
+---
 
-🚀 Tech Stack
-Backend: ASP.NET Core 8, C#
-Frontend: React, JavaScript
-Database: Microsoft SQL Server
-ORM: Entity Framework Core
-Validation: FluentValidation
-Testing: xUnit
-DevOps: Docker, Docker Compose
-Architecture: REST API
-✨ Key Features
-Reservation system for managing barber appointments
-Protection against conflicting and concurrent bookings
-Role-based access control (Admin / Barber / User)
-Input validation and API request validation
-Confirmation emails for created appointments
-REST API connected to the React frontend
-Database access using Entity Framework Core
-🧠 Technical Highlights
+## 🚀 Tech stack
 
-One of the main challenges of the project was preventing two users from successfully booking the same time slot.
+**Backend:** ASP.NET Core 8 (C#)  
+**Frontend:** React (JavaScript)  
+**Database:** SQL Server  
+**ORM:** Entity Framework Core  
+**Validation:** FluentValidation  
+**Testing:** xUnit  
+**DevOps:** Docker, Docker Compose  
+**Architecture:** REST API
 
-The backend therefore handles booking conflicts and concurrent requests to maintain the consistency of reservations.
+---
 
-The project also uses role-based authorization to control access to different parts of the API.
+## ✨ Key Features
 
-🛠️ Getting Started
-Prerequisites
-Docker
-Docker Compose
-Run with Docker
-git clone https://github.com/PheterCZ/Barber_Reservation.git
+- Reservation system for managing barber appointments
+- Protection against booking conflicts and concurrent requests
+- Role-based access control (Admin / Barber / User)
+- Input validation and protection against invalid API requests
+- REST API connected to the React frontend
+- Confirmation emails for created reservations
+
+---
+
+## 🛠 Getting started
+
+```bash
+git clone https://github.com/PheterCZ/Barber_Reservation
 cd Barber_Reservation/backend
 cp .env.example .env
 docker compose up --build
-
-The application can then be accessed through the configured API and frontend endpoints.
-
-📌 Project Status
-
-Personal project developed to improve my practical experience with C#/.NET backend development and modern web application architecture.
